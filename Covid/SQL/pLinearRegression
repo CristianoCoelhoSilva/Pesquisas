@@ -1,0 +1,79 @@
+ PROCEDURE pRegressaoLinear  IS   
+   
+   CONST_X INTEGER := 1;
+    
+   TYPE recValoresRegressao IS RECORD (
+        x_ NUMBER --x¯ é o valor médio da variável independente.
+      , y_ NUMBER --y¯ é o valor médio da variável dependente.
+      , xi NUMBER --xi é o valor da variável independente da i-ésima observação
+      , yi NUMBER --yi é o valor da variável dependente para a i-ésima observação
+      , n  NUMBER --n  é o número total de observações.
+      , b0 NUMBER --b0 é o valor da constante que resulta onde a reta toca o eixo y
+      , b1 NUMBER --b1 é o valor da inclinação da reta
+      , yc NUMBER --y^i  é o valor estimado da variável dependente para a i-ésima observação. 
+      , SQRes NUMBER --Soma dos Quadrados dos Resíduos (Residual sum of Squares (RSS))
+      , SQTot NUMBER
+      , SQReg NUMBER --Soma dos Quadrados da Regressão
+      , SQRT NUMBER --Coeficiente de Correlação Amostral  
+      , r2 NUMBER --Coeficiente de determinação r²
+      , minimo_quadrado_dividendo NUMBER --∑(xi−x¯)(yi−y¯)
+      , minimo_quadrado_divisor   NUMBER --∑(xi−x¯)2  
+   );
+  
+  rValoresRegressao recValoresRegressao;
+  
+ BEGIN
+  --Calcular Média y¯ e x x¯
+  SELECT COUNT(2) n 
+       , SUM(yi) / COUNT(1) y_
+       , SUM(xi) / COUNT(1) x_ INTO rValoresRegressao.n
+                                  , rValoresRegressao.y_
+                                  , rValoresRegressao.x_
+    FROM tab_regressao;
+
+  FOR tab_temp IN (
+      SELECT xi
+           , yi
+        FROM tab_regressao)
+  LOOP
+   rValoresRegressao.xi := tab_temp.xi;
+   rValoresRegressao.yi := tab_temp.yi;
+
+   rValoresRegressao.minimo_quadrado_dividendo :=  NVL(rValoresRegressao.minimo_quadrado_dividendo,0) + (rValoresRegressao.xi - rValoresRegressao.x_) * (rValoresRegressao.yi - rValoresRegressao.y_);
+   rValoresRegressao.minimo_quadrado_divisor   :=  NVL(rValoresRegressao.minimo_quadrado_divisor,0) + power((rValoresRegressao.xi - rValoresRegressao.x_), 2);  
+  
+  END LOOP;
+  
+  --∑n=10i=0(xi−x¯)∗(yi−y¯) / ∑n=10i=0(xi−x¯)2
+  rValoresRegressao.b1 := rValoresRegressao.minimo_quadrado_dividendo / rValoresRegressao.minimo_quadrado_divisor;
+  -- b0=y¯−b1∗x¯
+  rValoresRegressao.b0 := rValoresRegressao.y_ - rValoresRegressao.b1 * (rValoresRegressao.x_);
+  --y^=b0+b1∗(x)
+  rValoresRegressao.yc := rValoresRegressao.b0 + rValoresRegressao.b1 * CONST_X;
+
+  --Soma dos residuos
+  FOR tab_temp IN (
+      SELECT xi
+           , yi
+        FROM tab_regressao)
+  LOOP
+   rValoresRegressao.xi := tab_temp.xi;
+   rValoresRegressao.yi := tab_temp.yi;
+   rValoresRegressao.yc := rValoresRegressao.b0 + rValoresRegressao.b1 * rValoresRegressao.xi;
+   
+   --∑n=10i=1(yi−y^i)2
+   rValoresRegressao.SQRes := NVL(rValoresRegressao.SQRes, 0) + POWER((rValoresRegressao.yi - rValoresRegressao.yc),2);
+   --∑i=1n=10(y^i−y¯)2
+   rValoresRegressao.SQReg := NVL(rValoresRegressao.SQReg, 0) + POWER((rValoresRegressao.yc - rValoresRegressao.y_), 2);
+   --∑n=10i=1(yi−y¯)2
+   rValoresRegressao.SQTot := NVL(rValoresRegressao.SQTot, 0) + POWER((rValoresRegressao.yi - rValoresRegressao.y_),2);
+   
+  END LOOP;
+
+  --r2 = SQReg / SQTot
+  rValoresRegressao.r2 := rValoresRegressao.SQReg / rValoresRegressao.SQTot;
+  
+  --rx,y = (sinalb1)∗r²−−√
+  rValoresRegressao.SQRT := SQRT(rValoresRegressao.r2);
+
+ END pRegressaoLinear;
