@@ -1,2 +1,2 @@
-*.js linguist-language=Python
+*.Jupyter Notebook linguist-language=R
 *.css linguist-language=Python
