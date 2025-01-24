@@ -1,6 +1,6 @@
 **Projetos de Pesquisa Utilizando Ferramentas como Python e R**
 
-Este repositório tem como objetivo compartilhar e documentar projetos de pesquisa que utilizam as ferramentas Python e R para análise de dados, modelagem estatística, aprendizado de máquina, visualização e mais. Ambos Python e R são amplamente usados na comunidade científica para uma variedade de aplicações em diferentes áreas de pesquisa, como biologia, saúde, ciências sociais, economia, física, entre outras.
+Este repositório tem como objetivo compartilhar e documentar projetos de pesquisa que utilizam as ferramentas Python e R para análise de dados, modelagem estatística, aprendizado de máquina, visualização e mais. Ambos Python e R são amplamente usados na comunidade científica para uma variedade de aplicações em diferentes áreas de pesquisa, como biologia, saúde, ciências sociais, economia, entre outras.
 
 **Sumário**
 
